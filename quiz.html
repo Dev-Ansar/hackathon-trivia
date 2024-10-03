@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Trivia Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #121212; /* Dark background for fallback */
+            color: #E0E0E0; /* Light text */
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('image1.jpg'); /* Initial background image */
+            background-size: cover; /* Cover the entire background */
+            background-position: center; /* Center the image */
+            transition: background-image 0.5s ease-in-out; /* Smooth transition */
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .card {
+            background: #1F1F1F; /* Dark card background */
+            border-radius: 15px; /* More rounded corners */
+            padding: 30px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7); /* Enhanced elevation */
+            width: 80%; /* Full width for larger display */
+            max-width: 600px; /* Max width for larger screens */
+            text-align: center;
+            position: relative; /* Position for child elements */
+        }
+
+        h2 {
+            color: #FF6F00; /* Orange for questions */
+            font-size: 1.8em; /* Larger font size */
+            margin-bottom: 20px; /* Spacing below question */
+        }
+
+        .options-container {
+            display: flex; /* Flexbox for horizontal alignment */
+            flex-wrap: wrap; /* Wrap options to the next line */
+            justify-content: center; /* Center the options */
+            margin: 20px 0; /* Spacing around options */
+        }
+
+        .option-button {
+            background-color: #2D2D2D; /* Dark option background */
+            color: #E0E0E0; /* Light option text */
+            border: none;
+            padding: 15px; /* More padding for better touch */
+            border-radius: 8px; /* More rounded buttons */
+            cursor: pointer;
+            margin: 10px; /* Space between options */
+            width: 45%; /* Each button takes up 45% of the width */
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 1.1em; /* Slightly larger font size */
+        }
+
+        .option-button:hover {
+            background-color: #FF9800; /* Orange hover effect */
+            transform: scale(1.05); /* Scale effect on hover */
+        }
+
+        .hint-button {
+            display: block; /* Display as a block */
+            margin: 20px auto; /* Center the button */
+            padding: 15px 20px; /* More padding for the hint button */
+            background-color: #FF6F00; /* Orange background */
+            color: white; /* White text for visibility */
+            border: none;
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer;
+            font-size: 1.2em; /* Larger font size */
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .hint-button:hover {
+            background-color: #FF9800; /* Darker orange on hover */
+            transform: scale(1.05); /* Scale effect on hover */
+        }
+
+        .hint-card {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(50, 50, 50, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 10px; /* More rounded hint card */
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            width: 80%; /* Full width for hint */
+            max-width: 400px; /* Max width for larger displays */
+            text-align: center;
+        }
+
+        .hint-card button {
+            margin-top: 10px;
+            padding: 10px 15px; /* Padding for hint button */
+            background-color: #FF6F00; /* Orange for hint button */
+            color: #FFFFFF; /* White text for visibility */
+            border: none;
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .hint-card button:hover {
+            background-color: #FF9800; /* Darker orange on hover */
+        }
+
+        .play-again-button {
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+            padding: 15px 20px; /* More padding for play again button */
+            background-color: #FF6F00; /* Gold color for button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em; /* Larger font size */
+        }
+
+        #game-over-message {
+            max-height: 200px; /* Set a max height for scrolling */
+            overflow-y: auto; /* Enable scrolling */
+            margin-top: 10px;
+            background: #333; /* Darker background for message area */
+            padding: 10px;
+            border-radius: 5px;
+            color: #E0E0E0; /* Light text for game over message */
+            text-align: left; /* Align text to the left */
+            white-space: pre-line; /* Preserve line breaks */
+        }
+
+        #game-over-message h3 {
+            color: #FF6F00; /* Orange for heading */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2 id="question">Question will appear here</h2>
+            <div class="options-container" id="options"></div> <!-- Container for options -->
+            <button id="hint-button" class="hint-button">Get a Hint</button>
+            <div id="message"></div>
+            <div id="game-over-message" style="display:none;"></div> <!-- Message area -->
+            <button id="play-again-button" class="play-again-button" onclick="restartQuiz()">Play Again</button>
+        </div>
+    </div>
+
+    <div class="hint-card" id="hint-card">
+        <p id="hint-message"></p>
+        <button onclick="closeHint()">Close</button>
+    </div>
+
+    <script src="questions.js"></script>
+    <script>
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const userAnswers = []; // Store user answers
+
+        // Array of background images
+        const backgroundImages = [
+            'image1.jpg',
+            'image2.jpg',
+            'image3.jpg'
+        ];
+        let currentBackgroundIndex = 0;
+
+        // Function to change the background image
+        function changeBackground() {
+            currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundImages.length;
+            document.body.style.backgroundImage = `url('${backgroundImages[currentBackgroundIndex]}')`;
+        }
+
+        // Change background every 5 seconds
+        setInterval(changeBackground, 5000);
+
+        function showQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const questionElement = document.getElementById('question');
+                const optionsElement = document.getElementById('options');
+                questionElement.innerText = questions[currentQuestionIndex].question;
+                optionsElement.innerHTML = ''; // Clear previous options
+
+                questions[currentQuestionIndex].options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.innerText = option;
+                    button.className = 'option-button'; // Apply option button class
+                    button.onclick = () => selectOption(option);
+                    optionsElement.appendChild(button);
+                });
+
+                document.getElementById('message').innerText = '';
+                document.getElementById('game-over-message').style.display = 'none'; // Hide game over message
+            } else {
+                showGameOver();
+            }
+        }
+
+        function selectOption(selectedOption) {
+            const question = questions[currentQuestionIndex];
+            userAnswers[currentQuestionIndex] = selectedOption; // Store user's answer
+            if (selectedOption === question.answer) {
+                score++;
+            }
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function showGameOver() {
+    // Clear the question and options before showing the game over message
+    document.getElementById('question').innerText = ''; // Clear question text
+    document.getElementById('options').innerHTML = ''; // Clear options
+
+    document.getElementById('hint-button').style.display = 'none'; // Hide the hint button
+    
+    let message = `Game Over!\n\nYour score: ${score}/${questions.length}\n\n`;
+    questions.forEach((q, index) => {
+        message += `Q: ${q.question}\n`;
+        message += `Your answer: ${userAnswers[index]}\n`;
+        message += `Correct answer: ${q.answer}\n\n`;
+    });
+
+    document.getElementById('game-over-message').innerHTML = `<h3>${message}</h3>`;
+    document.getElementById('game-over-message').style.display = 'block'; // Display game over message
+    document.getElementById('play-again-button').style.display = 'block'; // Show play again button
+}
+
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers.length = 0; // Clear previous user answers
+            document.getElementById('play-again-button').style.display = 'none'; // Hide play again button
+            document.getElementById('game-over-message').style.display = 'none'; // Hide game over message
+            showQuestion();
+        }
+
+        function showHint() {
+            const question = questions[currentQuestionIndex];
+            document.getElementById('hint-message').innerText = question.hint;
+            document.getElementById('hint-card').style.display = 'block';
+        }
+
+        function closeHint() {
+            document.getElementById('hint-card').style.display = 'none';
+        }
+
+        document.getElementById('hint-button').onclick = showHint;
+
+        // Start quiz
+        showQuestion();
+    </script>
+</body>
+</html>

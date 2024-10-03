@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Trivia</title>
+    <style>
+        body {
+            background-color: #121212; /* Dark background */
+            color: #FFFFFF; /* Light text color */
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+            background-image: url('./images/image0.jpg'); /* Initial background image */
+            overflow: hidden; /* Prevent overflow */
+        }
+        .card {
+            background-color: rgba(255, 0, 0, 0.8); /* Red with some transparency */
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 2; /* Ensure card is above video */
+        }
+        h1 {
+            font-size: 3rem; /* Large title */
+            margin: 0;
+            color: #FFD700; /* Gold color for title */
+            text-shadow: 2px 2px #000; /* Slight shadow for better readability */
+        }
+        p {
+            font-size: 1.5rem; /* Large caption */
+            color: #FFFFFF; /* White color for caption */
+            margin: 20px 0;
+        }
+        .start-button {
+            background-color: #FFD700; /* Gold button */
+            color: #121212; /* Dark text for contrast */
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px; /* Space between buttons */
+        }
+        .start-button:hover {
+            background-color: #FFC107; /* Slightly darker gold on hover */
+        }
+        .skip-button {
+            background-color: transparent; /* No background */
+            color: #FFD700; /* Gold color for the text */
+            border: none;
+            font-size: 1rem; /* Smaller font size */
+            cursor: pointer;
+            margin-top: 10px; /* Space above button */
+            text-decoration: underline; /* Underline for emphasis */
+            display: none; /* Initially hidden */
+        }
+        .skip-button:hover {
+            color: #FFC107; /* Change color on hover */
+        }
+        /* Video element styles */
+        #introVideo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Cover the entire background */
+            z-index: 1; /* Place the video behind the card */
+        }
+    </style>
+</head>
+<body>
+    <!-- Video Element -->
+    <video id="introVideo" src="intro.mp4" preload="auto" style="display:none;"></video>
+
+    <div class="card" id="cardContent">
+        <h1>Welcome to Marvel Trivia!</h1>
+        <p>Test how much of a Marvel nerd you are!</p>
+        <button class="start-button" id="start-quiz">Start Trivia</button>
+    </div>
+
+    <script>
+        document.getElementById("start-quiz").addEventListener("click", function() {
+            const video = document.getElementById("introVideo");
+            const card = document.getElementById("cardContent");
+
+            // Change content when the video starts
+            card.innerHTML = `
+                <h1>Okay, fasten your seatbelts!</h1>
+                <p>Get ready to prove if you're worthy!</p>
+                <button class="skip-button" id="skip-intro">Skip Intro</button>
+            `;
+
+            video.style.display = "block"; // Show the video
+            video.play(); // Play the intro video
+
+            // Show the skip button after 2 seconds
+            setTimeout(() => {
+                document.getElementById("skip-intro").style.display = "inline"; // Show the skip button
+            }, 3000); // 2000 milliseconds = 2 seconds
+
+            // Redirect after video ends
+            video.onended = function() {
+                window.location.href = "quiz.html"; // Redirect to quiz after video ends
+            };
+
+            // Add skip functionality
+            document.getElementById("skip-intro").addEventListener("click", function() {
+                video.pause(); // Pause the video
+                window.location.href = "quiz.html"; // Redirect to quiz
+            });
+        });
+    </script>
+</body>
+</html>
